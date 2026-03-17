@@ -1,6 +1,6 @@
 import { Context, InlineKeyboard } from "grammy";
 import { getCategoriesByType } from "../../db/categories.js";
-import { addTransaction } from "../../db/transactions.js";
+import { addTransaction, type PaymentMethod } from "../../db/transactions.js";
 import { formatCurrency } from "../../utils.js";
 
 // In-memory state for multi-step expense flow per user
@@ -80,13 +80,42 @@ export async function handleExpenseCallback(ctx: Context): Promise<void> {
   const categoryId = parseInt(catIdStr) || undefined;
   const description = descParts.join(":") || undefined;
 
-  const tx = addTransaction("expense", amount, description, categoryId);
+  // Show payment method picker
+  const keyboard = new InlineKeyboard()
+    .text("Debito", `exppm:${amount}:${catIdStr}:debit:${description ?? ""}`)
+    .text("Credito", `exppm:${amount}:${catIdStr}:credit:${description ?? ""}`)
+    .row()
+    .text("Sem especificar", `exppm:${amount}:${catIdStr}:none:${description ?? ""}`);
+
+  const categories = getCategoriesByType("expense");
+  const cat = categories.find((c) => c.id === categoryId);
+  const catLabel = cat ? ` | ${cat.icon} ${cat.name}` : "";
+
+  await ctx.editMessageText(
+    `Gasto de ${formatCurrency(amount)}${catLabel}. Debito ou credito?`,
+    { reply_markup: keyboard },
+  );
+  await ctx.answerCallbackQuery();
+}
+
+export async function handleExpensePaymentCallback(ctx: Context): Promise<void> {
+  const data = ctx.callbackQuery?.data;
+  if (!data?.startsWith("exppm:")) return;
+
+  const [, amountStr, catIdStr, pm, ...descParts] = data.split(":");
+  const amount = parseFloat(amountStr);
+  const categoryId = parseInt(catIdStr) || undefined;
+  const description = descParts.join(":") || undefined;
+  const paymentMethod = pm === "none" ? undefined : (pm as PaymentMethod);
+
+  const tx = addTransaction("expense", amount, description, categoryId, undefined, paymentMethod);
   const categories = getCategoriesByType("expense");
   const cat = categories.find((c) => c.id === categoryId);
   const catLabel = cat ? `${cat.icon} ${cat.name}` : "";
+  const pmLabel = paymentMethod === "debit" ? " | Debito" : paymentMethod === "credit" ? " | Credito" : "";
 
   await ctx.editMessageText(
-    `Gasto registrado: ${formatCurrency(tx.amount)}${catLabel ? ` | ${catLabel}` : ""}${description ? ` | ${description}` : ""}`,
+    `Gasto registrado: ${formatCurrency(tx.amount)}${catLabel ? ` | ${catLabel}` : ""}${description ? ` | ${description}` : ""}${pmLabel}`,
   );
   await ctx.answerCallbackQuery();
 }

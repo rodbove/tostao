@@ -1,7 +1,7 @@
 import { Bot } from "grammy";
 import { authMiddleware } from "./middleware.js";
 import { startCommand, helpCommand } from "./commands/start.js";
-import { expenseCommand, handleExpenseAmount, handleExpenseCallback } from "./commands/expense.js";
+import { expenseCommand, handleExpenseAmount, handleExpenseCallback, handleExpensePaymentCallback } from "./commands/expense.js";
 import { earningCommand, handleEarningAmount, handleEarningCallback } from "./commands/earning.js";
 import { todayCommand, weekCommand, monthCommand, balanceCommand } from "./commands/summary.js";
 import { categoriesCommand } from "./commands/categories.js";
@@ -11,6 +11,7 @@ import { budgetCommand, budgetSetCommand, handleBudgetCallback, handleBudgetAmou
 import { adviceCommand } from "./commands/advice.js";
 import { insightsCommand, anomalyCommand } from "./commands/insights.js";
 import { exportCommand } from "./commands/export.js";
+import { accountsCommand, setBalanceCommand, handleSetBalanceCallback, handleSetBalanceAmount } from "./commands/accounts.js";
 import { parseQuickInput } from "./quick-input.js";
 import { addTransaction } from "../db/transactions.js";
 import { findCategoryByName } from "../db/categories.js";
@@ -39,12 +40,16 @@ export function createBot(token: string): Bot {
   bot.command("insights", insightsCommand);
   bot.command("anomalies", anomalyCommand);
   bot.command("export", exportCommand);
+  bot.command("accounts", accountsCommand);
+  bot.command("setbalance", setBalanceCommand);
 
   // Callback queries (inline keyboard buttons)
   bot.callbackQuery(/^exp:/, handleExpenseCallback);
   bot.callbackQuery(/^ear:/, handleEarningCallback);
   bot.callbackQuery(/^goal_/, handleGoalCallback);
   bot.callbackQuery(/^budget_cat:/, handleBudgetCallback);
+  bot.callbackQuery(/^exppm:/, handleExpensePaymentCallback);
+  bot.callbackQuery(/^setbal:/, handleSetBalanceCallback);
 
   // Free text: try pending flows first, then quick input
   bot.on("message:text", async (ctx) => {
@@ -55,6 +60,7 @@ export function createBot(token: string): Bot {
     if (await handleEarningAmount(ctx)) return;
     if (await handleGoalAmount(ctx)) return;
     if (await handleBudgetAmount(ctx)) return;
+    if (await handleSetBalanceAmount(ctx)) return;
 
     // Try quick input
     const parsed = parseQuickInput(text);

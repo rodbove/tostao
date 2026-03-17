@@ -22,6 +22,8 @@ Comandos disponiveis:
 /insights - Relatorio mensal com IA
 /anomalies - Detectar gastos incomuns
 /export - Exportar CSV do mes (/export all para tudo)
+/accounts - Ver saldo das contas
+/setbalance - Atualizar saldo de uma conta
 /categories - Ver categorias
 /undo - Desfazer ultimo registro
 /help - Ver esta mensagem`

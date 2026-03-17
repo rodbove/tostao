@@ -13,7 +13,8 @@ function formatTransaction(t: TransactionWithCategory): string {
   const sign = t.type === "earning" ? "+" : "-";
   const icon = t.category_icon ?? "";
   const desc = t.description ? ` ${t.description}` : "";
-  return `${icon} ${sign}${formatCurrency(t.amount)}${desc}`;
+  const pm = t.payment_method === "credit" ? " [credito]" : t.payment_method === "debit" ? " [debito]" : "";
+  return `${icon} ${sign}${formatCurrency(t.amount)}${desc}${pm}`;
 }
 
 export async function todayCommand(ctx: Context): Promise<void> {
