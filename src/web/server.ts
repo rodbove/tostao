@@ -18,6 +18,11 @@ export function createServer(port: number): ReturnType<typeof express> {
   app.use(cors());
   app.use(express.json());
 
+  // Health check
+  app.get("/api/health", (_req, res) => {
+    res.json({ ok: true });
+  });
+
   // API routes
   app.use("/api/transactions", transactionsRouter);
   app.use("/api/summary", summaryRouter);
@@ -32,7 +37,10 @@ export function createServer(port: number): ReturnType<typeof express> {
 
   if (fs.existsSync(indexPath)) {
     app.use(express.static(staticPath));
-    app.get("/{*splat}", (_req, res) => {
+
+    // SPA fallback — only for non-API routes
+    app.use((req, res, next) => {
+      if (req.path.startsWith("/api")) return next();
       res.sendFile(indexPath);
     });
   } else {
