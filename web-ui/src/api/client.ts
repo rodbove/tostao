@@ -124,4 +124,23 @@ export const api = {
   getBudgetProgress(month: string) {
     return request<BudgetProgress[]>(`/api/budgets/progress?month=${month}`);
   },
+
+  getAiStatus() {
+    return request<{ available: boolean }>("/api/insights/status");
+  },
+
+  getAdvice(question?: string) {
+    return request<{ advice: string }>("/api/insights/advice", {
+      method: "POST",
+      body: JSON.stringify({ question }),
+    });
+  },
+
+  getMonthlyInsights(year: number, month: number) {
+    return request<{ report: string }>(`/api/insights/monthly?year=${year}&month=${month}`);
+  },
+
+  getAnomalies() {
+    return request<{ anomalies: string | null }>("/api/insights/anomalies");
+  },
 };

@@ -7,6 +7,7 @@ import summaryRouter from "./api/summary.js";
 import categoriesRouter from "./api/categories.js";
 import goalsRouter from "./api/goals.js";
 import budgetsRouter from "./api/budgets.js";
+import insightsRouter from "./api/insights.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -22,6 +23,7 @@ export function createServer(port: number): ReturnType<typeof express> {
   app.use("/api/categories", categoriesRouter);
   app.use("/api/goals", goalsRouter);
   app.use("/api/budgets", budgetsRouter);
+  app.use("/api/insights", insightsRouter);
 
   // Serve web UI static files (after build)
   const staticPath = path.resolve(__dirname, "../../web-ui/dist");

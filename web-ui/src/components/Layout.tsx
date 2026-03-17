@@ -5,6 +5,7 @@ const links = [
   { to: "/timeline", label: "Timeline" },
   { to: "/transactions", label: "Transacoes" },
   { to: "/goals", label: "Metas" },
+  { to: "/insights", label: "Insights" },
 ];
 
 export default function Layout() {
