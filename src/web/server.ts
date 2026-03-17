@@ -47,8 +47,16 @@ export function createServer(port: number): ReturnType<typeof express> {
     console.log("Web UI not built — run 'npm run build' in web-ui/ to enable. API still available.");
   }
 
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(`Web server running on port ${port}`);
+  });
+
+  server.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(`Port ${port} is already in use. Set WEB_UI_PORT to a different port.`);
+      process.exit(1);
+    }
+    throw err;
   });
 
   return app;
