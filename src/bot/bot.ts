@@ -8,6 +8,8 @@ import { categoriesCommand } from "./commands/categories.js";
 import { undoCommand } from "./commands/undo.js";
 import { goalCommand, handleGoalAmount, handleGoalCallback } from "./commands/goals.js";
 import { budgetCommand, budgetSetCommand, handleBudgetCallback, handleBudgetAmount } from "./commands/budget.js";
+import { adviceCommand } from "./commands/advice.js";
+import { insightsCommand, anomalyCommand } from "./commands/insights.js";
 import { parseQuickInput } from "./quick-input.js";
 import { addTransaction } from "../db/transactions.js";
 import { findCategoryByName } from "../db/categories.js";
@@ -32,6 +34,9 @@ export function createBot(token: string): Bot {
   bot.command("goal", goalCommand);
   bot.command("budget", budgetCommand);
   bot.command("budgetset", budgetSetCommand);
+  bot.command("advice", adviceCommand);
+  bot.command("insights", insightsCommand);
+  bot.command("anomalies", anomalyCommand);
 
   // Callback queries (inline keyboard buttons)
   bot.callbackQuery(/^exp:/, handleExpenseCallback);
