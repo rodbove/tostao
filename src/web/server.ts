@@ -28,7 +28,7 @@ export function createServer(port: number): ReturnType<typeof express> {
   // Serve web UI static files (after build)
   const staticPath = path.resolve(__dirname, "../../web-ui/dist");
   app.use(express.static(staticPath));
-  app.get("*", (_req, res) => {
+  app.get("/{*splat}", (_req, res) => {
     res.sendFile(path.join(staticPath, "index.html"));
   });
 
