@@ -80,5 +80,9 @@ export function createBot(token: string): Bot {
     await ctx.reply("Nao entendi. Use /help para ver os comandos disponiveis.");
   });
 
+  bot.catch((err) => {
+    console.error("Bot error:", err.error);
+  });
+
   return bot;
 }
