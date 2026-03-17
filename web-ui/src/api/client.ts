@@ -47,6 +47,27 @@ export interface DailyData {
   earnings: number;
 }
 
+export interface Goal {
+  id: number;
+  name: string;
+  target_amount: number;
+  current_amount: number;
+  deadline: string | null;
+  created_at: string;
+}
+
+export interface BudgetProgress {
+  id: number;
+  category_id: number;
+  monthly_limit: number;
+  month: string;
+  category_name: string;
+  category_icon: string;
+  spent: number;
+  remaining: number;
+  percentage: number;
+}
+
 export const api = {
   getTransactions(start: string, end: string) {
     return request<Transaction[]>(`/api/transactions?start=${start}&end=${end}`);
@@ -76,5 +97,31 @@ export const api = {
 
   getCategories() {
     return request<Category[]>("/api/categories");
+  },
+
+  getGoals() {
+    return request<Goal[]>("/api/goals");
+  },
+
+  createGoal(name: string, target_amount: number, deadline?: string) {
+    return request<Goal>("/api/goals", {
+      method: "POST",
+      body: JSON.stringify({ name, target_amount, deadline }),
+    });
+  },
+
+  depositGoal(id: number, amount: number) {
+    return request<{ ok: boolean }>(`/api/goals/${id}/deposit`, {
+      method: "POST",
+      body: JSON.stringify({ amount }),
+    });
+  },
+
+  deleteGoal(id: number) {
+    return request<{ ok: boolean }>(`/api/goals/${id}`, { method: "DELETE" });
+  },
+
+  getBudgetProgress(month: string) {
+    return request<BudgetProgress[]>(`/api/budgets/progress?month=${month}`);
   },
 };

@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import transactionsRouter from "./api/transactions.js";
 import summaryRouter from "./api/summary.js";
 import categoriesRouter from "./api/categories.js";
+import goalsRouter from "./api/goals.js";
+import budgetsRouter from "./api/budgets.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -18,6 +20,8 @@ export function createServer(port: number): ReturnType<typeof express> {
   app.use("/api/transactions", transactionsRouter);
   app.use("/api/summary", summaryRouter);
   app.use("/api/categories", categoriesRouter);
+  app.use("/api/goals", goalsRouter);
+  app.use("/api/budgets", budgetsRouter);
 
   // Serve web UI static files (after build)
   const staticPath = path.resolve(__dirname, "../../web-ui/dist");
