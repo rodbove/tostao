@@ -1,0 +1,59 @@
+import { Router } from "express";
+import {
+  getTransactionsByDateRange,
+  addTransaction,
+  deleteTransaction,
+  type TransactionWithCategory,
+} from "../../db/transactions.js";
+
+const router = Router();
+
+router.get("/", (req, res) => {
+  const { start, end, type, category_id } = req.query;
+
+  if (!start || !end) {
+    res.status(400).json({ error: "start and end query params required (YYYY-MM-DD)" });
+    return;
+  }
+
+  let transactions = getTransactionsByDateRange(start as string, end as string);
+
+  if (type) {
+    transactions = transactions.filter((t) => t.type === type);
+  }
+  if (category_id) {
+    const catId = parseInt(category_id as string);
+    transactions = transactions.filter((t) => t.category_id === catId);
+  }
+
+  res.json(transactions);
+});
+
+router.post("/", (req, res) => {
+  const { type, amount, description, category_id, date } = req.body;
+
+  if (!type || !amount) {
+    res.status(400).json({ error: "type and amount are required" });
+    return;
+  }
+
+  if (!["expense", "earning"].includes(type)) {
+    res.status(400).json({ error: "type must be 'expense' or 'earning'" });
+    return;
+  }
+
+  const tx = addTransaction(type, amount, description, category_id, date);
+  res.status(201).json(tx);
+});
+
+router.delete("/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const deleted = deleteTransaction(id);
+  if (!deleted) {
+    res.status(404).json({ error: "Transaction not found" });
+    return;
+  }
+  res.json({ ok: true });
+});
+
+export default router;

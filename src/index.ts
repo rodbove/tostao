@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { createBot } from "./bot/bot.js";
+import { createServer } from "./web/server.js";
 import { getDb, closeDb } from "./db/schema.js";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -11,6 +12,10 @@ if (!token) {
 // Initialize database
 getDb();
 console.log("Database initialized");
+
+// Start web server
+const webPort = parseInt(process.env.WEB_UI_PORT ?? "3001");
+createServer(webPort);
 
 // Start bot
 const bot = createBot(token);
