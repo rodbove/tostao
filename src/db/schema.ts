@@ -23,10 +23,11 @@ function migrate(db: Database.Database): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS categories (
       id INTEGER PRIMARY KEY,
-      name TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
       type TEXT NOT NULL CHECK (type IN ('expense', 'earning')),
       icon TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(name, type)
     );
 
     CREATE TABLE IF NOT EXISTS transactions (
