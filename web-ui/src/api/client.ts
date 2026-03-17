@@ -22,7 +22,17 @@ export interface Transaction {
   category_id: number | null;
   category_name: string | null;
   category_icon: string | null;
+  payment_method: "debit" | "credit" | null;
   date: string;
+  created_at: string;
+}
+
+export interface Account {
+  id: number;
+  name: string;
+  type: "checking" | "savings_cdb" | "emergency" | "credit_card";
+  balance: number;
+  current_bill?: number;
   created_at: string;
 }
 
@@ -147,5 +157,16 @@ export const api = {
 
   getAnomalies() {
     return request<{ anomalies: string | null }>("/api/insights/anomalies");
+  },
+
+  getAccounts() {
+    return request<Account[]>("/api/accounts");
+  },
+
+  updateAccountBalance(id: number, balance: number) {
+    return request<Account>(`/api/accounts/${id}/balance`, {
+      method: "PUT",
+      body: JSON.stringify({ balance }),
+    });
   },
 };

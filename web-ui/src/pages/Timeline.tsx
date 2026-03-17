@@ -63,7 +63,7 @@ export default function Timeline() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="label" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip formatter={(v: number) => formatCurrency(v)} />
+              <Tooltip formatter={(v) => formatCurrency(Number(v))} />
               <Legend />
               <Bar dataKey="earnings" fill="#10b981" name="Ganhos" radius={[4, 4, 0, 0]} />
               <Bar dataKey="expenses" fill="#ef4444" name="Gastos" radius={[4, 4, 0, 0]} />
@@ -83,7 +83,7 @@ export default function Timeline() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="label" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip formatter={(v: number) => formatCurrency(v)} />
+              <Tooltip formatter={(v) => formatCurrency(Number(v))} />
               <Area
                 type="monotone"
                 dataKey="savings"
