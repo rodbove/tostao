@@ -40,6 +40,14 @@ function migrate(db: Database.Database): void {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS accounts (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL CHECK (type IN ('checking', 'savings_cdb', 'emergency', 'credit_card')),
+      balance REAL NOT NULL DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE TABLE IF NOT EXISTS goals (
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
@@ -60,7 +68,41 @@ function migrate(db: Database.Database): void {
       ON budgets(category_id, month);
   `);
 
+  // Migrations for existing databases
+  runMigrations(db);
+
   seedDefaultCategories(db);
+  seedDefaultAccounts(db);
+}
+
+function runMigrations(db: Database.Database): void {
+  // Check if payment_method column exists on transactions
+  const cols = db.prepare("PRAGMA table_info(transactions)").all() as { name: string }[];
+  const colNames = cols.map((c) => c.name);
+
+  if (!colNames.includes("payment_method")) {
+    db.exec("ALTER TABLE transactions ADD COLUMN payment_method TEXT CHECK (payment_method IN ('debit', 'credit'))");
+  }
+}
+
+function seedDefaultAccounts(db: Database.Database): void {
+  const count = db.prepare("SELECT COUNT(*) as n FROM accounts").get() as { n: number };
+  if (count.n > 0) return;
+
+  const insert = db.prepare("INSERT INTO accounts (name, type, balance) VALUES (?, ?, 0)");
+  const defaults: [string, string][] = [
+    ["Conta Corrente", "checking"],
+    ["CDB", "savings_cdb"],
+    ["Reserva de Emergencia", "emergency"],
+    ["Cartao de Credito", "credit_card"],
+  ];
+
+  const tx = db.transaction(() => {
+    for (const [name, type] of defaults) {
+      insert.run(name, type);
+    }
+  });
+  tx();
 }
 
 function seedDefaultCategories(db: Database.Database): void {

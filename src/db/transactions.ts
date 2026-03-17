@@ -1,11 +1,14 @@
 import { getDb } from "./schema.js";
 
+export type PaymentMethod = "debit" | "credit";
+
 export interface Transaction {
   id: number;
   type: "expense" | "earning";
   amount: number;
   description: string | null;
   category_id: number | null;
+  payment_method: PaymentMethod | null;
   date: string;
   created_at: string;
 }
@@ -21,13 +24,14 @@ export function addTransaction(
   description?: string,
   categoryId?: number,
   date?: string,
+  paymentMethod?: PaymentMethod,
 ): Transaction {
   const db = getDb();
   const stmt = db.prepare(`
-    INSERT INTO transactions (type, amount, description, category_id, date)
-    VALUES (?, ?, ?, ?, COALESCE(?, date('now')))
+    INSERT INTO transactions (type, amount, description, category_id, date, payment_method)
+    VALUES (?, ?, ?, ?, COALESCE(?, date('now')), ?)
   `);
-  const result = stmt.run(type, amount, description ?? null, categoryId ?? null, date ?? null);
+  const result = stmt.run(type, amount, description ?? null, categoryId ?? null, date ?? null, paymentMethod ?? null);
   return db.prepare("SELECT * FROM transactions WHERE id = ?").get(result.lastInsertRowid) as Transaction;
 }
 
