@@ -6,6 +6,7 @@ import {
   getBalance,
   type TransactionWithCategory,
 } from "../../db/transactions.js";
+import { getBudgetProgress } from "../../db/budgets.js";
 import { formatCurrency, todayStr, weekStartStr, monthStartStr, monthEndStr } from "../../utils.js";
 
 function formatTransaction(t: TransactionWithCategory): string {
@@ -107,6 +108,22 @@ export async function monthCommand(ctx: Context): Promise<void> {
   msg += `Total gastos: ${formatCurrency(totals.expenses)}\n`;
   msg += `Total ganhos: ${formatCurrency(totals.earnings)}\n`;
   msg += `Saldo: ${formatCurrency(totals.earnings - totals.expenses)}`;
+
+  // Budget progress
+  const now = new Date();
+  const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const budgets = getBudgetProgress(month);
+  if (budgets.length > 0) {
+    msg += "\n\nOrcamento:\n";
+    for (const b of budgets) {
+      const filled = Math.round(Math.min(100, b.percentage) / 10);
+      const empty = 10 - filled;
+      const bar = "[" + "=".repeat(filled) + " ".repeat(empty) + "]";
+      const status = b.percentage >= 100 ? " ESTOURADO" : "";
+      msg += `${b.category_icon} ${b.category_name}: ${bar} ${b.percentage.toFixed(0)}%${status}\n`;
+      msg += `  ${formatCurrency(b.spent)} / ${formatCurrency(b.monthly_limit)}\n`;
+    }
+  }
 
   await ctx.reply(msg);
 }

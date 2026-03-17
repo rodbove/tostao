@@ -6,6 +6,8 @@ import { earningCommand, handleEarningAmount, handleEarningCallback } from "./co
 import { todayCommand, weekCommand, monthCommand, balanceCommand } from "./commands/summary.js";
 import { categoriesCommand } from "./commands/categories.js";
 import { undoCommand } from "./commands/undo.js";
+import { goalCommand, handleGoalAmount, handleGoalCallback } from "./commands/goals.js";
+import { budgetCommand, budgetSetCommand, handleBudgetCallback, handleBudgetAmount } from "./commands/budget.js";
 import { parseQuickInput } from "./quick-input.js";
 import { addTransaction } from "../db/transactions.js";
 import { findCategoryByName } from "../db/categories.js";
@@ -27,18 +29,25 @@ export function createBot(token: string): Bot {
   bot.command("balance", balanceCommand);
   bot.command("categories", categoriesCommand);
   bot.command("undo", undoCommand);
+  bot.command("goal", goalCommand);
+  bot.command("budget", budgetCommand);
+  bot.command("budgetset", budgetSetCommand);
 
   // Callback queries (inline keyboard buttons)
   bot.callbackQuery(/^exp:/, handleExpenseCallback);
   bot.callbackQuery(/^ear:/, handleEarningCallback);
+  bot.callbackQuery(/^goal_/, handleGoalCallback);
+  bot.callbackQuery(/^budget_cat:/, handleBudgetCallback);
 
   // Free text: try pending flows first, then quick input
   bot.on("message:text", async (ctx) => {
     const text = ctx.message.text.trim();
 
-    // Check if we're in a pending expense/earning flow
+    // Check if we're in a pending flow
     if (await handleExpenseAmount(ctx)) return;
     if (await handleEarningAmount(ctx)) return;
+    if (await handleGoalAmount(ctx)) return;
+    if (await handleBudgetAmount(ctx)) return;
 
     // Try quick input
     const parsed = parseQuickInput(text);

@@ -15,6 +15,9 @@ Comandos disponiveis:
 /week - Resumo da semana
 /month - Resumo do mes
 /balance - Saldo geral
+/goal - Ver/criar metas de economia
+/budget - Ver orcamento mensal
+/budgetset - Definir orcamento por categoria
 /categories - Ver categorias
 /undo - Desfazer ultimo registro
 /help - Ver esta mensagem`
