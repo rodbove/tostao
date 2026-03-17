@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tostao — Seu bot de financas pessoais</title>
+  <meta name="description" content="Bot pessoal de financas no Telegram com dashboard web e insights com IA. Registre gastos, defina orcamentos, alcance suas metas.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8d598;
+      --green: #1a6b4a;
+      --green-dark: #0f4a32;
+      --cream: #f5f0e1;
+      --cream-dark: #e8dfca;
+      --paper: #faf6eb;
+      --ink: #2c2416;
+      --ink-light: #6b5d4d;
+      --red-accent: #b04a3a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* --- Noise texture overlay --- */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: 0.03;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 256px;
+    }
+
+    /* --- Card container --- */
+    .card {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      margin: 40px 20px;
+      background: var(--paper);
+      border-radius: 16px;
+      border: 3px solid var(--cream-dark);
+      box-shadow:
+        0 2px 0 var(--cream-dark),
+        0 8px 32px rgba(44, 36, 22, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      overflow: hidden;
+    }
+
+    /* --- Top badge strip --- */
+    .badge-strip {
+      background: var(--green);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .badge-strip .series {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+
+    .badge-strip .number {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    /* --- Coin illustration area --- */
+    .coin-area {
+      padding: 40px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .coin {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, var(--gold-light), var(--gold), #a8873a);
+      box-shadow:
+        0 4px 16px rgba(201, 168, 76, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.4),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .coin::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .coin::after {
+      content: '';
+      position: absolute;
+      inset: 12px;
+      border-radius: 50%;
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+    }
+
+    .coin-inner {
+      text-align: center;
+      z-index: 1;
+    }
+
+    .coin-inner .symbol {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--green-dark);
+      line-height: 1;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .coin-inner .nine {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--green-dark);
+      opacity: 0.6;
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* --- Title block --- */
+    .title-block {
+      padding: 0 24px 8px;
+      text-align: center;
+    }
+
+    .title-block h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--ink);
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .title-block .subtitle {
+      font-size: 13px;
+      color: var(--ink-light);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* --- Divider --- */
+    .divider {
+      margin: 16px 24px;
+      border: none;
+      border-top: 1px solid var(--cream-dark);
+      position: relative;
+    }
+
+    .divider::after {
+      content: 'R$';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--paper);
+      padding: 0 10px;
+      font-family: 'Playfair Display', serif;
+      font-size: 12px;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* --- Stats row --- */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      background: var(--cream-dark);
+      margin: 0 24px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .stat {
+      background: var(--paper);
+      padding: 14px 8px;
+      text-align: center;
+    }
+
+    .stat .value {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .stat .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--ink-light);
+      margin-top: 2px;
+      font-weight: 600;
+    }
+
+    /* --- Features list --- */
+    .features {
+      padding: 20px 24px 8px;
+    }
+
+    .feature {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 10px 0;
+    }
+
+    .feature:not(:last-child) {
+      border-bottom: 1px solid var(--cream-dark);
+    }
+
+    .feature .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .feature h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .feature p {
+      font-size: 12px;
+      color: var(--ink-light);
+      line-height: 1.5;
+    }
+
+    /* --- Bottom strip --- */
+    .bottom-strip {
+      background: var(--green);
+      padding: 16px 24px;
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bottom-strip a {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--green-dark);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 28px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      transition: background 0.2s;
+    }
+
+    .bottom-strip a:hover {
+      background: var(--gold-light);
+    }
+
+    .bottom-strip .tagline {
+      font-size: 11px;
+      color: var(--gold-light);
+      opacity: 0.7;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* --- Quick input demo --- */
+    .demo {
+      margin: 0 24px;
+      background: var(--cream);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 13px;
+    }
+
+    .demo .prompt {
+      color: var(--ink-light);
+      margin-bottom: 8px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .demo .messages {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .demo .msg {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      width: fit-content;
+      max-width: 80%;
+    }
+
+    .demo .msg.user {
+      background: var(--green);
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .demo .msg.bot {
+      background: var(--paper);
+      color: var(--ink);
+      border: 1px solid var(--cream-dark);
+      border-bottom-left-radius: 4px;
+    }
+
+    /* --- Footer outside card --- */
+    .footer {
+      padding: 16px 20px 40px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--ink-light);
+    }
+
+    .footer a {
+      color: var(--green);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 480px) {
+      .card {
+        margin: 20px 12px;
+        border-radius: 12px;
+      }
+      .title-block h1 {
+        font-size: 40px;
+      }
+      .coin {
+        width: 120px;
+        height: 120px;
+      }
+      .coin-inner .symbol {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="badge-strip">
+      <span class="series">Financas Pessoais</span>
+      <span class="number">#9</span>
+    </div>
+
+    <div class="coin-area">
+      <div class="coin">
+        <div class="coin-inner">
+          <span class="symbol">T$</span>
+          <span class="nine">N. 9</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="title-block">
+      <h1>Tostao</h1>
+      <span class="subtitle">Cada centavo conta</span>
+    </div>
+
+    <hr class="divider">
+
+    <div class="stats">
+      <div class="stat">
+        <div class="value">17</div>
+        <div class="label">Comandos</div>
+      </div>
+      <div class="stat">
+        <div class="value">5</div>
+        <div class="label">Paginas</div>
+      </div>
+      <div class="stat">
+        <div class="value">IA</div>
+        <div class="label">Insights</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="demo">
+      <div class="prompt">Registro rapido</div>
+      <div class="messages">
+        <div class="msg user">50 almoco</div>
+        <div class="msg bot">-R$50.00 almoco 🍔 Alimentacao</div>
+        <div class="msg user">+3000 salario</div>
+        <div class="msg bot">+R$3000.00 salario 💰 Salario</div>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="icon">💬</div>
+        <div>
+          <h3>Bot no Telegram</h3>
+          <p>Registre gastos e ganhos direto no chat. Entrada rapida sem comandos ou fluxo interativo com categorias.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="icon">📊</div>
+        <div>
+          <h3>Dashboard Web</h3>
+          <p>Graficos por categoria, timeline diaria/semanal/mensal, saldo acumulado e lista de transacoes com filtros.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="icon">🎯</div>
+        <div>
+          <h3>Metas & Orcamento</h3>
+          <p>Defina metas de economia com prazo e orcamento mensal por categoria. Acompanhe o progresso em tempo real.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="icon">🧠</div>
+        <div>
+          <h3>Insights com IA</h3>
+          <p>Conselhos financeiros personalizados, relatorio mensal automatico e deteccao de gastos incomuns.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="icon">📦</div>
+        <div>
+          <h3>Self-hosted</h3>
+          <p>Roda no seu servidor. Seus dados ficam com voce. SQLite, Docker, pronto para deploy.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-strip">
+      <a href="https://github.com/rmello/tostao">Ver no GitHub</a>
+      <span class="tagline">Quem cuida do tostao, nao precisa do milhao</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Node.js + TypeScript + Grammy + SQLite + React + Anthropic API</p>
+  </div>
+
+</body>
+</html>
