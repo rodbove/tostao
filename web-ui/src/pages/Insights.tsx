@@ -10,7 +10,9 @@ export default function Insights() {
   const [loading, setLoading] = useState({ report: false, anomalies: false, advice: false });
 
   useEffect(() => {
-    api.getAiStatus().then((s) => setAiAvailable(s.available));
+    api.getAiStatus()
+      .then((s) => setAiAvailable(s.available))
+      .catch(() => setAiAvailable(false));
   }, []);
 
   async function loadReport() {

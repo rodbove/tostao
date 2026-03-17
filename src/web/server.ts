@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import path from "node:path";
+import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import transactionsRouter from "./api/transactions.js";
 import summaryRouter from "./api/summary.js";
@@ -27,10 +28,16 @@ export function createServer(port: number): ReturnType<typeof express> {
 
   // Serve web UI static files (after build)
   const staticPath = path.resolve(__dirname, "../../web-ui/dist");
-  app.use(express.static(staticPath));
-  app.get("/{*splat}", (_req, res) => {
-    res.sendFile(path.join(staticPath, "index.html"));
-  });
+  const indexPath = path.join(staticPath, "index.html");
+
+  if (fs.existsSync(indexPath)) {
+    app.use(express.static(staticPath));
+    app.get("/{*splat}", (_req, res) => {
+      res.sendFile(indexPath);
+    });
+  } else {
+    console.log("Web UI not built — run 'npm run build' in web-ui/ to enable. API still available.");
+  }
 
   app.listen(port, () => {
     console.log(`Web server running on port ${port}`);

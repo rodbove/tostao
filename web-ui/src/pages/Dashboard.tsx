@@ -19,15 +19,24 @@ export default function Dashboard() {
   const start = monthStartStr();
   const end = monthEndStr();
 
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    api.getTotals(start, end).then(setTotals);
-    api.getByCategory(start, end, "expense").then(setExpensesByCategory);
-    api.getDaily(start, end).then(setDaily);
+    setError(null);
+    Promise.all([
+      api.getTotals(start, end).then(setTotals),
+      api.getByCategory(start, end, "expense").then(setExpensesByCategory),
+      api.getDaily(start, end).then(setDaily),
+    ]).catch((err) => setError(`Erro ao carregar dados: ${err.message}`));
   }, [start, end]);
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold capitalize">{monthLabel()}</h1>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">{error}</div>
+      )}
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4">
