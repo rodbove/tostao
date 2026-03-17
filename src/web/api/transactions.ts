@@ -46,6 +46,27 @@ router.post("/", (req, res) => {
   res.status(201).json(tx);
 });
 
+router.get("/export", (req, res) => {
+  const { start, end } = req.query;
+  if (!start || !end) {
+    res.status(400).json({ error: "start and end query params required" });
+    return;
+  }
+
+  const transactions = getTransactionsByDateRange(start as string, end as string);
+  const header = "data,tipo,valor,categoria,descricao";
+  const rows = transactions.map((t) => {
+    const desc = (t.description ?? "").replace(/"/g, '""');
+    const cat = (t.category_name ?? "").replace(/"/g, '""');
+    return `${t.date},${t.type},${t.amount},"${cat}","${desc}"`;
+  });
+  const csv = [header, ...rows].join("\n");
+
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", `attachment; filename="tostao_${start}_${end}.csv"`);
+  res.send(csv);
+});
+
 router.delete("/:id", (req, res) => {
   const id = parseInt(req.params.id);
   const deleted = deleteTransaction(id);

@@ -21,6 +21,7 @@ Comandos disponiveis:
 /advice - Conselho financeiro com IA
 /insights - Relatorio mensal com IA
 /anomalies - Detectar gastos incomuns
+/export - Exportar CSV do mes (/export all para tudo)
 /categories - Ver categorias
 /undo - Desfazer ultimo registro
 /help - Ver esta mensagem`

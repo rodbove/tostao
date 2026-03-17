@@ -10,6 +10,7 @@ import { goalCommand, handleGoalAmount, handleGoalCallback } from "./commands/go
 import { budgetCommand, budgetSetCommand, handleBudgetCallback, handleBudgetAmount } from "./commands/budget.js";
 import { adviceCommand } from "./commands/advice.js";
 import { insightsCommand, anomalyCommand } from "./commands/insights.js";
+import { exportCommand } from "./commands/export.js";
 import { parseQuickInput } from "./quick-input.js";
 import { addTransaction } from "../db/transactions.js";
 import { findCategoryByName } from "../db/categories.js";
@@ -37,6 +38,7 @@ export function createBot(token: string): Bot {
   bot.command("advice", adviceCommand);
   bot.command("insights", insightsCommand);
   bot.command("anomalies", anomalyCommand);
+  bot.command("export", exportCommand);
 
   // Callback queries (inline keyboard buttons)
   bot.callbackQuery(/^exp:/, handleExpenseCallback);

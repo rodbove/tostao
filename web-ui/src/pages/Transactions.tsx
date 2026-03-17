@@ -29,9 +29,22 @@ export default function Transactions() {
     setTransactions((prev) => prev.filter((t) => t.id !== id));
   }
 
+  function handleExport() {
+    const base = import.meta.env.VITE_API_URL ?? "";
+    window.open(`${base}/api/transactions/export?start=${startDate}&end=${endDate}`);
+  }
+
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Transacoes</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Transacoes</h1>
+        <button
+          onClick={handleExport}
+          className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+        >
+          Exportar CSV
+        </button>
+      </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-end">
