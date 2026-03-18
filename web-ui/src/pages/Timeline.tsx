@@ -34,16 +34,16 @@ export default function Timeline() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Timeline</h1>
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+        <h1 className="text-2xl font-bold text-ink">Timeline</h1>
+        <div className="flex gap-1 bg-cream-dark rounded-lg p-1">
           {(["daily", "weekly", "monthly"] as View[]).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
               className={`px-3 py-1 text-sm rounded-md transition-colors ${
                 view === v
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-paper text-ink shadow-sm"
+                  : "text-ink-light hover:text-ink"
               }`}
             >
               {v === "daily" ? "Diario" : v === "weekly" ? "Semanal" : "Mensal"}
@@ -53,42 +53,42 @@ export default function Timeline() {
       </div>
 
       {/* Income vs Expenses */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <h2 className="text-sm font-semibold text-gray-500 mb-3">Ganhos vs Gastos</h2>
+      <div className="bg-paper rounded-lg border border-cream-dark p-4 shadow-sm">
+        <h2 className="text-sm font-semibold text-ink-light mb-3">Ganhos vs Gastos</h2>
         {grouped.length === 0 ? (
-          <p className="text-gray-400 text-sm">Sem dados</p>
+          <p className="text-ink-light text-sm">Sem dados</p>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={grouped}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e8dfca" />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#6b5d4d" }} />
+              <YAxis tick={{ fontSize: 11, fill: "#6b5d4d" }} />
               <Tooltip formatter={(v) => formatCurrency(Number(v))} />
               <Legend />
-              <Bar dataKey="earnings" fill="#10b981" name="Ganhos" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="expenses" fill="#ef4444" name="Gastos" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="earnings" fill="#1a6b4a" name="Ganhos" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="expenses" fill="#b04a3a" name="Gastos" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
       </div>
 
       {/* Cumulative savings */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <h2 className="text-sm font-semibold text-gray-500 mb-3">Saldo acumulado</h2>
+      <div className="bg-paper rounded-lg border border-cream-dark p-4 shadow-sm">
+        <h2 className="text-sm font-semibold text-ink-light mb-3">Saldo acumulado</h2>
         {savingsData.length === 0 ? (
-          <p className="text-gray-400 text-sm">Sem dados</p>
+          <p className="text-ink-light text-sm">Sem dados</p>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={savingsData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e8dfca" />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#6b5d4d" }} />
+              <YAxis tick={{ fontSize: 11, fill: "#6b5d4d" }} />
               <Tooltip formatter={(v) => formatCurrency(Number(v))} />
               <Area
                 type="monotone"
                 dataKey="savings"
-                stroke="#3b82f6"
-                fill="#3b82f680"
+                stroke="#c9a84c"
+                fill="#c9a84c40"
                 name="Saldo acumulado"
               />
             </AreaChart>

@@ -37,10 +37,10 @@ export default function Transactions() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Transacoes</h1>
+        <h1 className="text-2xl font-bold text-ink">Transacoes</h1>
         <button
           onClick={handleExport}
-          className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+          className="text-sm text-gold hover:text-gold-light font-medium"
         >
           Exportar CSV
         </button>
@@ -49,29 +49,29 @@ export default function Transactions() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-end">
         <label className="text-sm">
-          <span className="block text-gray-500 mb-1">De</span>
+          <span className="block text-ink-light mb-1">De</span>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="border border-gray-300 rounded px-2 py-1 text-sm"
+            className="border border-cream-dark rounded px-2 py-1 text-sm bg-paper text-ink"
           />
         </label>
         <label className="text-sm">
-          <span className="block text-gray-500 mb-1">Ate</span>
+          <span className="block text-ink-light mb-1">Ate</span>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="border border-gray-300 rounded px-2 py-1 text-sm"
+            className="border border-cream-dark rounded px-2 py-1 text-sm bg-paper text-ink"
           />
         </label>
         <label className="text-sm">
-          <span className="block text-gray-500 mb-1">Tipo</span>
+          <span className="block text-ink-light mb-1">Tipo</span>
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value as typeof filterType)}
-            className="border border-gray-300 rounded px-2 py-1 text-sm"
+            className="border border-cream-dark rounded px-2 py-1 text-sm bg-paper text-ink"
           >
             <option value="">Todos</option>
             <option value="expense">Gastos</option>
@@ -79,13 +79,13 @@ export default function Transactions() {
           </select>
         </label>
         <label className="text-sm">
-          <span className="block text-gray-500 mb-1">Categoria</span>
+          <span className="block text-ink-light mb-1">Categoria</span>
           <select
             value={filterCategory}
             onChange={(e) =>
               setFilterCategory(e.target.value ? parseInt(e.target.value) : "")
             }
-            className="border border-gray-300 rounded px-2 py-1 text-sm"
+            className="border border-cream-dark rounded px-2 py-1 text-sm bg-paper text-ink"
           >
             <option value="">Todas</option>
             {categories.map((c) => (
@@ -98,12 +98,12 @@ export default function Transactions() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-paper rounded-lg border border-cream-dark overflow-hidden shadow-sm">
         {filtered.length === 0 ? (
-          <p className="text-gray-400 text-sm p-4">Nenhuma transacao encontrada</p>
+          <p className="text-ink-light text-sm p-4">Nenhuma transacao encontrada</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-500 text-left">
+            <thead className="bg-cream text-ink-light text-left">
               <tr>
                 <th className="px-4 py-2">Data</th>
                 <th className="px-4 py-2">Tipo</th>
@@ -114,16 +114,16 @@ export default function Transactions() {
                 <th className="px-4 py-2"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-cream-dark">
               {filtered.map((t) => (
-                <tr key={t.id} className="hover:bg-gray-50">
+                <tr key={t.id} className="hover:bg-cream/50">
                   <td className="px-4 py-2">{formatDate(t.date)}</td>
                   <td className="px-4 py-2">
                     <span
                       className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
                         t.type === "earning"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-green/10 text-green"
+                          : "bg-red-accent/10 text-red-accent"
                       }`}
                     >
                       {t.type === "earning" ? "Ganho" : "Gasto"}
@@ -132,31 +132,31 @@ export default function Transactions() {
                   <td className="px-4 py-2">
                     {t.category_icon} {t.category_name ?? "-"}
                   </td>
-                  <td className="px-4 py-2 text-gray-600">{t.description ?? "-"}</td>
+                  <td className="px-4 py-2 text-ink-light">{t.description ?? "-"}</td>
                   <td className="px-4 py-2">
                     {t.payment_type ? (
                       <div>
                         <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
-                          t.payment_type === "credit" ? "bg-purple-100 text-purple-700"
-                            : t.payment_type === "benefit" ? "bg-amber-100 text-amber-700"
-                            : "bg-blue-100 text-blue-700"
+                          t.payment_type === "credit" ? "bg-gold/20 text-ink"
+                            : t.payment_type === "benefit" ? "bg-gold-light/40 text-ink-light"
+                            : "bg-green/10 text-green-dark"
                         }`}>
                           {{ debit: "Debito", credit: "Credito", pix: "Pix", boleto: "Boleto", benefit: "Beneficio" }[t.payment_type]}
                         </span>
                         {t.card_name && (
-                          <span className="block text-xs text-gray-400 mt-0.5">{t.card_name}</span>
+                          <span className="block text-xs text-ink-light mt-0.5">{t.card_name}</span>
                         )}
                         {t.account_name && !t.card_name && (
-                          <span className="block text-xs text-gray-400 mt-0.5">{t.account_name}</span>
+                          <span className="block text-xs text-ink-light mt-0.5">{t.account_name}</span>
                         )}
                       </div>
                     ) : (
-                      <span className="text-gray-300">-</span>
+                      <span className="text-cream-dark">-</span>
                     )}
                   </td>
                   <td
                     className={`px-4 py-2 text-right font-medium ${
-                      t.type === "earning" ? "text-emerald-600" : "text-red-500"
+                      t.type === "earning" ? "text-green" : "text-red-accent"
                     }`}
                   >
                     {t.type === "earning" ? "+" : "-"}
@@ -165,7 +165,7 @@ export default function Transactions() {
                   <td className="px-4 py-2 text-right">
                     <button
                       onClick={() => handleDelete(t.id)}
-                      className="text-gray-400 hover:text-red-500 text-xs"
+                      className="text-ink-light hover:text-red-accent text-xs"
                     >
                       excluir
                     </button>
@@ -177,7 +177,7 @@ export default function Transactions() {
         )}
       </div>
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-ink-light">
         {filtered.length} transacao(es)
       </p>
     </div>

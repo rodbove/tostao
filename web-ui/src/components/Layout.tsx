@@ -10,10 +10,10 @@ const links = [
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      <nav className="bg-white border-b border-gray-200 px-4 py-3">
+    <div className="min-h-screen bg-cream text-ink">
+      <nav className="bg-green-dark px-4 py-3">
         <div className="max-w-5xl mx-auto flex items-center gap-6">
-          <span className="text-lg font-bold tracking-tight">Tostao</span>
+          <span className="font-display text-lg font-bold tracking-tight text-gold">Tostao</span>
           <div className="flex gap-4">
             {links.map((l) => (
               <NavLink
@@ -22,8 +22,8 @@ export default function Layout() {
                 className={({ isActive }) =>
                   `text-sm font-medium transition-colors ${
                     isActive
-                      ? "text-emerald-600 border-b-2 border-emerald-600 pb-0.5"
-                      : "text-gray-500 hover:text-gray-800"
+                      ? "text-gold-light border-b-2 border-gold pb-0.5"
+                      : "text-cream-dark/70 hover:text-gold-light"
                   }`
                 }
               >

@@ -7,8 +7,8 @@ import { api, type Totals, type CategorySummary, type DailyData, type Account } 
 import { formatCurrency, monthStartStr, monthEndStr, monthLabel } from "../utils";
 
 const COLORS = [
-  "#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6",
-  "#ec4899", "#14b8a6", "#f97316", "#6366f1", "#84cc16",
+  "#1a6b4a", "#c9a84c", "#b04a3a", "#3b82f6", "#8b5cf6",
+  "#0f4a32", "#e8d598", "#6b5d4d", "#14b8a6", "#f59e0b",
 ];
 
 const ACCOUNT_ICONS: Record<string, string> = {
@@ -60,42 +60,42 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold capitalize">{monthLabel()}</h1>
+      <h1 className="text-2xl font-bold text-ink">{monthLabel()}</h1>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">{error}</div>
+        <div className="bg-red-accent/10 border border-red-accent/30 rounded-lg p-3 text-sm text-red-accent">{error}</div>
       )}
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4">
-        <Card label="Ganhos" value={totals?.earnings ?? 0} color="text-emerald-600" />
-        <Card label="Gastos" value={totals?.expenses ?? 0} color="text-red-500" />
+        <Card label="Ganhos" value={totals?.earnings ?? 0} color="text-green" />
+        <Card label="Gastos" value={totals?.expenses ?? 0} color="text-red-accent" />
         <Card
           label="Saldo do mes"
           value={totals?.net ?? 0}
-          color={(totals?.net ?? 0) >= 0 ? "text-emerald-600" : "text-red-500"}
+          color={(totals?.net ?? 0) >= 0 ? "text-green" : "text-red-accent"}
         />
       </div>
 
       {/* Accounts overview */}
       {accounts.length > 0 && (
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-paper rounded-lg border border-cream-dark p-4 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-gray-500">Contas</h2>
-            <span className={`text-sm font-bold ${netWorth >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+            <h2 className="text-sm font-semibold text-ink-light">Contas</h2>
+            <span className={`text-sm font-bold ${netWorth >= 0 ? "text-green" : "text-red-accent"}`}>
               Patrimonio: {formatCurrency(netWorth)}
             </span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {accounts.map((a) => (
-              <div key={a.id} className="border border-gray-100 rounded-lg p-3">
+              <div key={a.id} className="border border-cream-dark rounded-lg p-3 bg-cream/40">
                 <div className="flex items-center gap-1.5 mb-1">
                   <span>{ACCOUNT_ICONS[a.type] ?? ""}</span>
-                  <span className="text-xs text-gray-500 truncate">{a.name}</span>
+                  <span className="text-xs text-ink-light truncate">{a.name}</span>
                 </div>
                 {a.type === "credit_card" ? (
                   <div>
-                    <p className="text-sm font-bold text-red-500">
+                    <p className="text-sm font-bold text-red-accent">
                       Fatura: {formatCurrency(a.current_bill ?? 0)}
                     </p>
                     {editingAccount === a.id ? (
@@ -105,15 +105,15 @@ export default function Dashboard() {
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
                           placeholder="Limite"
-                          className="w-full border border-gray-300 rounded px-1.5 py-0.5 text-xs"
+                          className="w-full border border-cream-dark rounded px-1.5 py-0.5 text-xs bg-paper"
                           autoFocus
                           onKeyDown={(e) => e.key === "Enter" && saveBalance(a.id)}
                         />
-                        <button onClick={() => saveBalance(a.id)} className="text-xs text-emerald-600">OK</button>
+                        <button onClick={() => saveBalance(a.id)} className="text-xs text-green font-medium">OK</button>
                       </div>
                     ) : (
                       <p
-                        className="text-xs text-gray-400 cursor-pointer hover:text-gray-600"
+                        className="text-xs text-ink-light cursor-pointer hover:text-ink"
                         onClick={() => { setEditingAccount(a.id); setEditValue(String(a.balance)); }}
                       >
                         Limite: {formatCurrency(a.balance)}
@@ -126,15 +126,15 @@ export default function Dashboard() {
                       type="text"
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
-                      className="w-full border border-gray-300 rounded px-1.5 py-0.5 text-xs"
+                      className="w-full border border-cream-dark rounded px-1.5 py-0.5 text-xs bg-paper"
                       autoFocus
                       onKeyDown={(e) => e.key === "Enter" && saveBalance(a.id)}
                     />
-                    <button onClick={() => saveBalance(a.id)} className="text-xs text-emerald-600">OK</button>
+                    <button onClick={() => saveBalance(a.id)} className="text-xs text-green font-medium">OK</button>
                   </div>
                 ) : (
                   <p
-                    className={`text-sm font-bold cursor-pointer hover:opacity-70 ${a.balance >= 0 ? "text-emerald-600" : "text-red-500"}`}
+                    className={`text-sm font-bold cursor-pointer hover:opacity-70 ${a.balance >= 0 ? "text-green" : "text-red-accent"}`}
                     onClick={() => { setEditingAccount(a.id); setEditValue(String(a.balance)); }}
                   >
                     {formatCurrency(a.balance)}
@@ -148,10 +148,10 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Expenses by category */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <h2 className="text-sm font-semibold text-gray-500 mb-3">Gastos por categoria</h2>
+        <div className="bg-paper rounded-lg border border-cream-dark p-4 shadow-sm">
+          <h2 className="text-sm font-semibold text-ink-light mb-3">Gastos por categoria</h2>
           {expensesByCategory.length === 0 ? (
-            <p className="text-gray-400 text-sm">Sem dados</p>
+            <p className="text-ink-light text-sm">Sem dados</p>
           ) : (
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -178,19 +178,19 @@ export default function Dashboard() {
         </div>
 
         {/* Daily spending */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <h2 className="text-sm font-semibold text-gray-500 mb-3">Gastos diarios</h2>
+        <div className="bg-paper rounded-lg border border-cream-dark p-4 shadow-sm">
+          <h2 className="text-sm font-semibold text-ink-light mb-3">Gastos diarios</h2>
           {daily.length === 0 ? (
-            <p className="text-gray-400 text-sm">Sem dados</p>
+            <p className="text-ink-light text-sm">Sem dados</p>
           ) : (
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={daily}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e8dfca" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b5d4d" }} />
+                <YAxis tick={{ fontSize: 11, fill: "#6b5d4d" }} />
                 <Tooltip formatter={(v) => formatCurrency(Number(v))} />
-                <Bar dataKey="expenses" fill="#ef4444" name="Gastos" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="earnings" fill="#10b981" name="Ganhos" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="expenses" fill="#b04a3a" name="Gastos" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="earnings" fill="#1a6b4a" name="Ganhos" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -202,9 +202,9 @@ export default function Dashboard() {
 
 function Card({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className={`text-xl font-bold ${color}`}>{formatCurrency(value)}</p>
+    <div className="bg-paper rounded-lg border border-cream-dark p-4 shadow-sm">
+      <p className="text-sm text-ink-light">{label}</p>
+      <p className={`text-xl font-bold font-display ${color}`}>{formatCurrency(value)}</p>
     </div>
   );
 }

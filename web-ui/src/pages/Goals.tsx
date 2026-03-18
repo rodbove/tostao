@@ -5,7 +5,7 @@ import { formatCurrency, formatDate } from "../utils";
 
 function Md({ children }: { children: string }) {
   return (
-    <div className="prose prose-sm prose-gray max-w-none text-gray-700 leading-relaxed [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_h3]:font-semibold [&_p]:my-1 [&_strong]:text-gray-900">
+    <div className="prose prose-sm max-w-none text-ink-light leading-relaxed [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_h3]:font-semibold [&_p]:my-1 [&_strong]:text-ink">
       <Markdown>{children}</Markdown>
     </div>
   );
@@ -96,17 +96,17 @@ export default function Goals() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Metas & Orcamento</h1>
+        <h1 className="text-2xl font-bold text-ink">Metas & Orcamento</h1>
         <div className="flex gap-2">
           <button
             onClick={() => { setShowAiGoal(!showAiGoal); setShowNewGoal(false); }}
-            className="border border-emerald-600 text-emerald-600 px-3 py-1.5 rounded text-sm hover:bg-emerald-50"
+            className="border border-gold text-gold px-3 py-1.5 rounded text-sm hover:bg-gold/10"
           >
             + Meta com IA
           </button>
           <button
             onClick={() => { setShowNewGoal(!showNewGoal); setShowAiGoal(false); }}
-            className="bg-emerald-600 text-white px-3 py-1.5 rounded text-sm hover:bg-emerald-700"
+            className="bg-green text-white px-3 py-1.5 rounded text-sm hover:bg-green-dark"
           >
             + Nova meta
           </button>
@@ -115,14 +115,14 @@ export default function Goals() {
 
       {/* Manual goal creation */}
       {showNewGoal && (
-        <form onSubmit={handleCreateGoal} className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+        <form onSubmit={handleCreateGoal} className="bg-paper rounded-lg border border-cream-dark p-4 space-y-3 shadow-sm">
           <div className="grid grid-cols-3 gap-3">
             <input
               type="text"
               placeholder="Nome da meta"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-1.5 text-sm"
+              className="border border-cream-dark rounded px-3 py-1.5 text-sm bg-paper text-ink"
               required
             />
             <input
@@ -130,7 +130,7 @@ export default function Goals() {
               placeholder="Valor alvo"
               value={newTarget}
               onChange={(e) => setNewTarget(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-1.5 text-sm"
+              className="border border-cream-dark rounded px-3 py-1.5 text-sm bg-paper text-ink"
               min="1"
               step="0.01"
               required
@@ -139,10 +139,10 @@ export default function Goals() {
               type="date"
               value={newDeadline}
               onChange={(e) => setNewDeadline(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-1.5 text-sm"
+              className="border border-cream-dark rounded px-3 py-1.5 text-sm bg-paper text-ink"
             />
           </div>
-          <button type="submit" className="bg-emerald-600 text-white px-4 py-1.5 rounded text-sm hover:bg-emerald-700">
+          <button type="submit" className="bg-green text-white px-4 py-1.5 rounded text-sm hover:bg-green-dark">
             Criar
           </button>
         </form>
@@ -150,15 +150,15 @@ export default function Goals() {
 
       {/* AI-assisted goal creation */}
       {showAiGoal && (
-        <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
-          <h3 className="text-sm font-semibold text-gray-500">Criar meta com ajuda da IA</h3>
+        <div className="bg-paper rounded-lg border border-cream-dark p-4 space-y-3 shadow-sm">
+          <h3 className="text-sm font-semibold text-ink-light">Criar meta com ajuda da IA</h3>
           <form onSubmit={handleAiPlan} className="space-y-3">
             <input
               type="text"
               placeholder="O que voce quer conquistar? (ex: viagem, carro, reserva)"
               value={aiDescription}
               onChange={(e) => setAiDescription(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm"
+              className="w-full border border-cream-dark rounded px-3 py-1.5 text-sm bg-paper text-ink"
               required
             />
             <input
@@ -166,18 +166,18 @@ export default function Goals() {
               placeholder="Expectativa de prazo (ex: 6 meses, fim do ano, ou deixe vazio)"
               value={aiDeadline}
               onChange={(e) => setAiDeadline(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm"
+              className="w-full border border-cream-dark rounded px-3 py-1.5 text-sm bg-paper text-ink"
             />
             <button
               type="submit"
               disabled={aiLoading}
-              className="bg-emerald-600 text-white px-4 py-1.5 rounded text-sm hover:bg-emerald-700 disabled:opacity-50"
+              className="bg-green text-white px-4 py-1.5 rounded text-sm hover:bg-green-dark disabled:opacity-50"
             >
               {aiLoading ? "Analisando..." : "Analisar com IA"}
             </button>
           </form>
           {aiSuggestion && (
-            <div className="mt-3 border-t border-gray-100 pt-3">
+            <div className="mt-3 border-t border-cream-dark pt-3">
               <Md>{aiSuggestion}</Md>
             </div>
           )}
@@ -186,43 +186,43 @@ export default function Goals() {
 
       {/* Goals */}
       <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-gray-500">Metas de economia</h2>
+        <h2 className="text-sm font-semibold text-ink-light">Metas de economia</h2>
         {goals.length === 0 ? (
-          <p className="text-gray-400 text-sm">Nenhuma meta cadastrada</p>
+          <p className="text-ink-light text-sm">Nenhuma meta cadastrada</p>
         ) : (
           goals.map((g) => {
             const pct = g.target_amount > 0 ? Math.min(100, (g.current_amount / g.target_amount) * 100) : 0;
             return (
-              <div key={g.id} className="bg-white rounded-lg border border-gray-200 p-4">
+              <div key={g.id} className="bg-paper rounded-lg border border-cream-dark p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-2">
                   <div>
-                    <span className="font-medium">{g.name}</span>
+                    <span className="font-medium text-ink">{g.name}</span>
                     {g.deadline && (
-                      <span className="text-xs text-gray-400 ml-2">prazo: {formatDate(g.deadline)}</span>
+                      <span className="text-xs text-ink-light ml-2">prazo: {formatDate(g.deadline)}</span>
                     )}
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleDeposit(g.id)}
-                      className="text-emerald-600 hover:text-emerald-700 text-xs font-medium"
+                      className="text-green hover:text-green-dark text-xs font-medium"
                     >
                       + depositar
                     </button>
                     <button
                       onClick={() => handleDeleteGoal(g.id)}
-                      className="text-gray-400 hover:text-red-500 text-xs"
+                      className="text-ink-light hover:text-red-accent text-xs"
                     >
                       excluir
                     </button>
                   </div>
                 </div>
-                <div className="w-full bg-gray-100 rounded-full h-3 mb-1">
+                <div className="w-full bg-cream-dark rounded-full h-3 mb-1">
                   <div
-                    className="bg-emerald-500 h-3 rounded-full transition-all"
+                    className="bg-gold h-3 rounded-full transition-all"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-xs text-gray-500">
+                <div className="flex justify-between text-xs text-ink-light">
                   <span>{formatCurrency(g.current_amount)} / {formatCurrency(g.target_amount)}</span>
                   <span>{pct.toFixed(0)}%</span>
                 </div>
@@ -235,40 +235,40 @@ export default function Goals() {
       {/* Budget progress */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-500">Orcamento de {month}</h2>
+          <h2 className="text-sm font-semibold text-ink-light">Orcamento de {month}</h2>
           <button
             onClick={handleBudgetPlan}
             disabled={budgetLoading}
-            className="text-sm text-emerald-600 hover:text-emerald-700 font-medium disabled:opacity-50"
+            className="text-sm text-gold hover:text-gold-light font-medium disabled:opacity-50"
           >
             {budgetLoading ? "Planejando..." : budgetSuggestion ? "Replanejar com IA" : "Planejar com IA"}
           </button>
         </div>
 
         {budgetSuggestion && (
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="bg-paper rounded-lg border border-cream-dark p-4 shadow-sm">
             <Md>{budgetSuggestion}</Md>
           </div>
         )}
 
         {budgets.length === 0 && !budgetSuggestion ? (
-          <p className="text-gray-400 text-sm">Nenhum orcamento definido (use /budgetset no bot)</p>
+          <p className="text-ink-light text-sm">Nenhum orcamento definido (use /budgetset no bot)</p>
         ) : (
           budgets.map((b) => (
-            <div key={b.id} className="bg-white rounded-lg border border-gray-200 p-4">
+            <div key={b.id} className="bg-paper rounded-lg border border-cream-dark p-4 shadow-sm">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">{b.category_icon} {b.category_name}</span>
+                <span className="font-medium text-ink">{b.category_icon} {b.category_name}</span>
                 {b.percentage >= 100 && (
-                  <span className="text-xs font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded">ESTOURADO</span>
+                  <span className="text-xs font-semibold text-red-accent bg-red-accent/10 px-2 py-0.5 rounded">ESTOURADO</span>
                 )}
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-3 mb-1">
+              <div className="w-full bg-cream-dark rounded-full h-3 mb-1">
                 <div
-                  className={`h-3 rounded-full transition-all ${b.percentage >= 100 ? "bg-red-500" : b.percentage >= 80 ? "bg-amber-500" : "bg-blue-500"}`}
+                  className={`h-3 rounded-full transition-all ${b.percentage >= 100 ? "bg-red-accent" : b.percentage >= 80 ? "bg-gold" : "bg-green"}`}
                   style={{ width: `${Math.min(100, b.percentage)}%` }}
                 />
               </div>
-              <div className="flex justify-between text-xs text-gray-500">
+              <div className="flex justify-between text-xs text-ink-light">
                 <span>{formatCurrency(b.spent)} / {formatCurrency(b.monthly_limit)}</span>
                 <span>{b.percentage.toFixed(0)}%</span>
               </div>
