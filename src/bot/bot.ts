@@ -1,8 +1,11 @@
 import { Bot } from "grammy";
 import { authMiddleware } from "./middleware.js";
 import { startCommand, helpCommand } from "./commands/start.js";
-import { expenseCommand, handleExpenseAmount, handleExpenseCallback, handleExpensePaymentCallback } from "./commands/expense.js";
-import { earningCommand, handleEarningAmount, handleEarningCallback } from "./commands/earning.js";
+import {
+  expenseCommand, handleExpenseAmount, handleExpenseCallback,
+  handleExpensePaymentCallback, handleExpenseAccountCallback, handleExpenseInstallmentCallback,
+} from "./commands/expense.js";
+import { earningCommand, handleEarningAmount, handleEarningCallback, handleEarningAccountCallback } from "./commands/earning.js";
 import { todayCommand, weekCommand, monthCommand, balanceCommand } from "./commands/summary.js";
 import { categoriesCommand } from "./commands/categories.js";
 import { undoCommand } from "./commands/undo.js";
@@ -45,10 +48,13 @@ export function createBot(token: string): Bot {
 
   // Callback queries (inline keyboard buttons)
   bot.callbackQuery(/^exp:/, handleExpenseCallback);
+  bot.callbackQuery(/^exppay:/, handleExpensePaymentCallback);
+  bot.callbackQuery(/^expacc:/, handleExpenseAccountCallback);
+  bot.callbackQuery(/^expinst:/, handleExpenseInstallmentCallback);
   bot.callbackQuery(/^ear:/, handleEarningCallback);
+  bot.callbackQuery(/^earacc:/, handleEarningAccountCallback);
   bot.callbackQuery(/^goal_/, handleGoalCallback);
   bot.callbackQuery(/^budget_cat:/, handleBudgetCallback);
-  bot.callbackQuery(/^exppm:/, handleExpensePaymentCallback);
   bot.callbackQuery(/^setbal:/, handleSetBalanceCallback);
 
   // Free text: try pending flows first, then quick input
@@ -66,12 +72,12 @@ export function createBot(token: string): Bot {
     const parsed = parseQuickInput(text);
     if (parsed) {
       const category = findCategoryByName(parsed.description, parsed.type);
-      const tx = addTransaction(
-        parsed.type,
-        parsed.amount,
-        parsed.description,
-        category?.id,
-      );
+      const tx = addTransaction({
+        type: parsed.type,
+        amount: parsed.amount,
+        description: parsed.description,
+        categoryId: category?.id,
+      });
 
       const sign = parsed.type === "earning" ? "+" : "-";
       const catLabel = category ? ` ${category.icon} ${category.name}` : "";

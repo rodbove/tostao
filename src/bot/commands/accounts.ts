@@ -1,34 +1,35 @@
 import { Context, InlineKeyboard } from "grammy";
-import { getAllAccounts, setAccountBalance, getCreditCardBill, type Account } from "../../db/accounts.js";
+import {
+  getAllAccounts, getAllCards, setAccountBalance, getCreditCardBill,
+  createAccount, createCard, deleteAccount, deleteCard,
+  type Account, type AccountType,
+} from "../../db/accounts.js";
 import { formatCurrency } from "../../utils.js";
 
 const pendingBalanceUpdate = new Map<number, { accountId: number }>();
-
-const TYPE_LABELS: Record<string, string> = {
-  checking: "Conta Corrente",
-  savings_cdb: "CDB",
-  emergency: "Reserva de Emergencia",
-  credit_card: "Cartao de Credito",
-};
 
 const TYPE_ICONS: Record<string, string> = {
   checking: "\uD83C\uDFE6",
   savings_cdb: "\uD83D\uDCC8",
   emergency: "\uD83D\uDEE1\uFE0F",
   credit_card: "\uD83D\uDCB3",
+  vr: "\uD83C\uDF7D\uFE0F",
+  va: "\uD83D\uDED2",
+  multi_benefit: "\uD83C\uDF1F",
 };
 
 function formatAccountLine(a: Account, creditBill?: number): string {
   const icon = TYPE_ICONS[a.type] ?? "";
   if (a.type === "credit_card") {
     const bill = creditBill ?? 0;
-    return `${icon} ${a.name}: Fatura ${formatCurrency(bill)} | Limite disponivel: ${formatCurrency(a.balance)}`;
+    return `${icon} ${a.name}: Fatura ${formatCurrency(bill)} | Limite: ${formatCurrency(a.balance)}`;
   }
   return `${icon} ${a.name}: ${formatCurrency(a.balance)}`;
 }
 
 export async function accountsCommand(ctx: Context): Promise<void> {
   const accounts = getAllAccounts();
+  const cards = getAllCards();
 
   if (accounts.length === 0) {
     await ctx.reply("Nenhuma conta cadastrada.");
@@ -37,17 +38,24 @@ export async function accountsCommand(ctx: Context): Promise<void> {
 
   const now = new Date();
   const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const creditBill = getCreditCardBill(month);
 
   let total = 0;
   const lines: string[] = [];
 
   for (const a of accounts) {
-    lines.push(formatAccountLine(a, a.type === "credit_card" ? creditBill : undefined));
+    const bill = a.type === "credit_card" ? getCreditCardBill(a.id, month) : undefined;
+    lines.push(formatAccountLine(a, bill));
+
+    // Show cards under this account
+    const accountCards = cards.filter((c) => c.account_id === a.id);
+    for (const card of accountCards) {
+      lines.push(`  \uD83D\uDCB3 ${card.name} (${card.type})`);
+    }
+
     if (a.type !== "credit_card") {
       total += a.balance;
     } else {
-      total -= creditBill;
+      total -= (bill ?? 0);
     }
   }
 

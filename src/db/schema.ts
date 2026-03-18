@@ -43,8 +43,27 @@ function migrate(db: Database.Database): void {
     CREATE TABLE IF NOT EXISTS accounts (
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
-      type TEXT NOT NULL CHECK (type IN ('checking', 'savings_cdb', 'emergency', 'credit_card')),
+      type TEXT NOT NULL CHECK (type IN ('checking', 'savings_cdb', 'emergency', 'credit_card', 'vr', 'va', 'multi_benefit')),
       balance REAL NOT NULL DEFAULT 0,
+      closing_day INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS cards (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+      type TEXT NOT NULL CHECK (type IN ('debit', 'credit', 'benefit')),
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS installments (
+      id INTEGER PRIMARY KEY,
+      transaction_id INTEGER NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
+      installment_number INTEGER NOT NULL,
+      total_installments INTEGER NOT NULL,
+      amount REAL NOT NULL,
+      due_month TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -68,7 +87,6 @@ function migrate(db: Database.Database): void {
       ON budgets(category_id, month);
   `);
 
-  // Migrations for existing databases
   runMigrations(db);
 
   seedDefaultCategories(db);
@@ -76,12 +94,27 @@ function migrate(db: Database.Database): void {
 }
 
 function runMigrations(db: Database.Database): void {
-  // Check if payment_method column exists on transactions
-  const cols = db.prepare("PRAGMA table_info(transactions)").all() as { name: string }[];
-  const colNames = cols.map((c) => c.name);
+  const txCols = (db.prepare("PRAGMA table_info(transactions)").all() as { name: string }[]).map((c) => c.name);
 
-  if (!colNames.includes("payment_method")) {
-    db.exec("ALTER TABLE transactions ADD COLUMN payment_method TEXT CHECK (payment_method IN ('debit', 'credit'))");
+  // v0.6 migration: payment_method → payment_type, add card_id, account_id, is_installment
+  if (!txCols.includes("payment_type")) {
+    db.exec("ALTER TABLE transactions ADD COLUMN payment_type TEXT CHECK (payment_type IN ('debit', 'credit', 'pix', 'boleto', 'benefit'))");
+    db.exec("ALTER TABLE transactions ADD COLUMN card_id INTEGER REFERENCES cards(id)");
+    db.exec("ALTER TABLE transactions ADD COLUMN account_id INTEGER REFERENCES accounts(id)");
+    db.exec("ALTER TABLE transactions ADD COLUMN is_installment INTEGER DEFAULT 0");
+
+    // Migrate old payment_method data
+    if (txCols.includes("payment_method")) {
+      db.exec("UPDATE transactions SET payment_type = payment_method WHERE payment_method IS NOT NULL");
+    }
+  } else if (!txCols.includes("payment_method")) {
+    // Fresh DB without old column — nothing to migrate
+  }
+
+  // Add closing_day to accounts if missing (upgrade from old schema)
+  const accCols = (db.prepare("PRAGMA table_info(accounts)").all() as { name: string }[]).map((c) => c.name);
+  if (!accCols.includes("closing_day")) {
+    db.exec("ALTER TABLE accounts ADD COLUMN closing_day INTEGER");
   }
 }
 
@@ -94,7 +127,6 @@ function seedDefaultAccounts(db: Database.Database): void {
     ["Conta Corrente", "checking"],
     ["CDB", "savings_cdb"],
     ["Reserva de Emergencia", "emergency"],
-    ["Cartao de Credito", "credit_card"],
   ];
 
   const tx = db.transaction(() => {

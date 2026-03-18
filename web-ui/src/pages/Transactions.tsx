@@ -134,14 +134,22 @@ export default function Transactions() {
                   </td>
                   <td className="px-4 py-2 text-gray-600">{t.description ?? "-"}</td>
                   <td className="px-4 py-2">
-                    {t.payment_method ? (
-                      <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
-                        t.payment_method === "credit"
-                          ? "bg-purple-100 text-purple-700"
-                          : "bg-blue-100 text-blue-700"
-                      }`}>
-                        {t.payment_method === "credit" ? "Credito" : "Debito"}
-                      </span>
+                    {t.payment_type ? (
+                      <div>
+                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
+                          t.payment_type === "credit" ? "bg-purple-100 text-purple-700"
+                            : t.payment_type === "benefit" ? "bg-amber-100 text-amber-700"
+                            : "bg-blue-100 text-blue-700"
+                        }`}>
+                          {{ debit: "Debito", credit: "Credito", pix: "Pix", boleto: "Boleto", benefit: "Beneficio" }[t.payment_type]}
+                        </span>
+                        {t.card_name && (
+                          <span className="block text-xs text-gray-400 mt-0.5">{t.card_name}</span>
+                        )}
+                        {t.account_name && !t.card_name && (
+                          <span className="block text-xs text-gray-400 mt-0.5">{t.account_name}</span>
+                        )}
+                      </div>
                     ) : (
                       <span className="text-gray-300">-</span>
                     )}

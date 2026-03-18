@@ -13,7 +13,8 @@ function formatTransaction(t: TransactionWithCategory): string {
   const sign = t.type === "earning" ? "+" : "-";
   const icon = t.category_icon ?? "";
   const desc = t.description ? ` ${t.description}` : "";
-  const pm = t.payment_method === "credit" ? " [credito]" : t.payment_method === "debit" ? " [debito]" : "";
+  const ptLabels: Record<string, string> = { debit: "debito", credit: "credito", pix: "pix", boleto: "boleto", benefit: "beneficio" };
+  const pm = t.payment_type ? ` [${ptLabels[t.payment_type] ?? t.payment_type}]` : "";
   return `${icon} ${sign}${formatCurrency(t.amount)}${desc}${pm}`;
 }
 

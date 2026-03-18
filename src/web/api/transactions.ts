@@ -3,10 +3,12 @@ import {
   getTransactionsByDateRange,
   addTransaction,
   deleteTransaction,
-  type TransactionWithCategory,
+  getInstallmentsForTransaction,
 } from "../../db/transactions.js";
 
 const router = Router();
+
+const VALID_PAYMENT_TYPES = ["debit", "credit", "pix", "boleto", "benefit"];
 
 router.get("/", (req, res) => {
   const { start, end, type, category_id } = req.query;
@@ -30,7 +32,7 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const { type, amount, description, category_id, date, payment_method } = req.body;
+  const { type, amount, description, category_id, date, payment_type, card_id, account_id, installments } = req.body;
 
   if (!type || !amount) {
     res.status(400).json({ error: "type and amount are required" });
@@ -42,13 +44,28 @@ router.post("/", (req, res) => {
     return;
   }
 
-  if (payment_method && !["debit", "credit"].includes(payment_method)) {
-    res.status(400).json({ error: "payment_method must be 'debit' or 'credit'" });
+  if (payment_type && !VALID_PAYMENT_TYPES.includes(payment_type)) {
+    res.status(400).json({ error: `payment_type must be one of: ${VALID_PAYMENT_TYPES.join(", ")}` });
     return;
   }
 
-  const tx = addTransaction(type, amount, description, category_id, date, payment_method);
+  const tx = addTransaction({
+    type,
+    amount,
+    description,
+    categoryId: category_id,
+    date,
+    paymentType: payment_type,
+    cardId: card_id,
+    accountId: account_id,
+    installments,
+  });
   res.status(201).json(tx);
+});
+
+router.get("/:id/installments", (req, res) => {
+  const id = parseInt(req.params.id);
+  res.json(getInstallmentsForTransaction(id));
 });
 
 router.get("/export", (req, res) => {
@@ -59,12 +76,14 @@ router.get("/export", (req, res) => {
   }
 
   const transactions = getTransactionsByDateRange(start as string, end as string);
-  const header = "data,tipo,valor,categoria,descricao,pagamento";
+  const header = "data,tipo,valor,categoria,descricao,pagamento,cartao,conta";
   const rows = transactions.map((t) => {
     const desc = (t.description ?? "").replace(/"/g, '""');
     const cat = (t.category_name ?? "").replace(/"/g, '""');
-    const pm = t.payment_method ?? "";
-    return `${t.date},${t.type},${t.amount},"${cat}","${desc}",${pm}`;
+    const pm = t.payment_type ?? "";
+    const card = (t.card_name ?? "").replace(/"/g, '""');
+    const acc = (t.account_name ?? "").replace(/"/g, '""');
+    return `${t.date},${t.type},${t.amount},"${cat}","${desc}",${pm},"${card}","${acc}"`;
   });
   const csv = [header, ...rows].join("\n");
 

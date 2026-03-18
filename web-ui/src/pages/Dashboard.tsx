@@ -16,6 +16,9 @@ const ACCOUNT_ICONS: Record<string, string> = {
   savings_cdb: "\uD83D\uDCC8",
   emergency: "\uD83D\uDEE1\uFE0F",
   credit_card: "\uD83D\uDCB3",
+  vr: "\uD83C\uDF7D\uFE0F",
+  va: "\uD83D\uDED2",
+  multi_benefit: "\uD83C\uDF1F",
 };
 
 export default function Dashboard() {

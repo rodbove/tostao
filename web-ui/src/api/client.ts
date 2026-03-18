@@ -14,6 +14,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json();
 }
 
+export type AccountType = "checking" | "savings_cdb" | "emergency" | "credit_card" | "vr" | "va" | "multi_benefit";
+export type CardType = "debit" | "credit" | "benefit";
+export type PaymentType = "debit" | "credit" | "pix" | "boleto" | "benefit";
+
 export interface Transaction {
   id: number;
   type: "expense" | "earning";
@@ -22,7 +26,12 @@ export interface Transaction {
   category_id: number | null;
   category_name: string | null;
   category_icon: string | null;
-  payment_method: "debit" | "credit" | null;
+  payment_type: PaymentType | null;
+  card_id: number | null;
+  card_name: string | null;
+  account_id: number | null;
+  account_name: string | null;
+  is_installment: number;
   date: string;
   created_at: string;
 }
@@ -30,9 +39,20 @@ export interface Transaction {
 export interface Account {
   id: number;
   name: string;
-  type: "checking" | "savings_cdb" | "emergency" | "credit_card";
+  type: AccountType;
   balance: number;
+  closing_day: number | null;
   current_bill?: number;
+  created_at: string;
+}
+
+export interface Card {
+  id: number;
+  name: string;
+  account_id: number;
+  type: CardType;
+  account_name: string;
+  account_type: AccountType;
   created_at: string;
 }
 
@@ -159,8 +179,23 @@ export const api = {
     return request<{ anomalies: string | null }>("/api/insights/anomalies");
   },
 
+  // Accounts
   getAccounts() {
     return request<Account[]>("/api/accounts");
+  },
+
+  createAccount(name: string, type: AccountType, balance?: number, closingDay?: number) {
+    return request<Account>("/api/accounts", {
+      method: "POST",
+      body: JSON.stringify({ name, type, balance, closing_day: closingDay }),
+    });
+  },
+
+  updateAccount(id: number, name: string, closingDay?: number) {
+    return request<Account>(`/api/accounts/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name, closing_day: closingDay }),
+    });
   },
 
   updateAccountBalance(id: number, balance: number) {
@@ -168,5 +203,25 @@ export const api = {
       method: "PUT",
       body: JSON.stringify({ balance }),
     });
+  },
+
+  deleteAccount(id: number) {
+    return request<{ ok: boolean }>(`/api/accounts/${id}`, { method: "DELETE" });
+  },
+
+  // Cards
+  getCards() {
+    return request<Card[]>("/api/accounts/cards");
+  },
+
+  createCard(name: string, accountId: number, type: CardType) {
+    return request<Card>("/api/accounts/cards", {
+      method: "POST",
+      body: JSON.stringify({ name, account_id: accountId, type }),
+    });
+  },
+
+  deleteCard(id: number) {
+    return request<{ ok: boolean }>(`/api/accounts/cards/${id}`, { method: "DELETE" });
   },
 };
