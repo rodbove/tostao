@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getFinancialAdvice } from "../../ai/advice.js";
+import { getFinancialAdvice, planGoal, planBudget } from "../../ai/advice.js";
 import { generateMonthlyInsights, detectAnomalies } from "../../ai/insights.js";
 import { getAiClient } from "../../ai/client.js";
 
@@ -62,6 +62,49 @@ router.get("/anomalies", async (_req, res) => {
     res.json({ anomalies: hasAnomalies ? result : null });
   } catch (err) {
     console.error("AI anomaly error:", err);
+    res.status(500).json({ error: "AI request failed" });
+  }
+});
+
+router.post("/plan-goal", async (req, res) => {
+  if (!getAiClient()) {
+    res.status(503).json({ error: "AI not configured" });
+    return;
+  }
+
+  try {
+    const { description, deadline } = req.body;
+    if (!description) {
+      res.status(400).json({ error: "description is required" });
+      return;
+    }
+    const suggestion = await planGoal(description, deadline);
+    if (!suggestion) {
+      res.status(500).json({ error: "Failed to generate goal plan" });
+      return;
+    }
+    res.json({ suggestion });
+  } catch (err) {
+    console.error("AI goal plan error:", err);
+    res.status(500).json({ error: "AI request failed" });
+  }
+});
+
+router.post("/plan-budget", async (_req, res) => {
+  if (!getAiClient()) {
+    res.status(503).json({ error: "AI not configured" });
+    return;
+  }
+
+  try {
+    const suggestion = await planBudget();
+    if (!suggestion) {
+      res.status(500).json({ error: "Failed to generate budget plan" });
+      return;
+    }
+    res.json({ suggestion });
+  } catch (err) {
+    console.error("AI budget plan error:", err);
     res.status(500).json({ error: "AI request failed" });
   }
 });

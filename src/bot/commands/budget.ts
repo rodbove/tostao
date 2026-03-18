@@ -1,6 +1,7 @@
 import { Context, InlineKeyboard } from "grammy";
 import { getCategoriesByType } from "../../db/categories.js";
 import { getBudgetProgress, setBudget } from "../../db/budgets.js";
+import { planBudget } from "../../ai/advice.js";
 import { formatCurrency } from "../../utils.js";
 
 const pendingBudgets = new Map<number, { categoryId?: number }>();
@@ -79,6 +80,22 @@ export async function handleBudgetAmount(ctx: Context): Promise<boolean> {
 
   await ctx.reply(`Orcamento de ${formatCurrency(amount)} definido para ${month}.`);
   return true;
+}
+
+export async function budgetPlanCommand(ctx: Context): Promise<void> {
+  await ctx.reply("Analisando seus dados financeiros para planejar o orcamento...");
+
+  try {
+    const suggestion = await planBudget();
+    if (!suggestion) {
+      await ctx.reply("Nao foi possivel gerar o plano. Verifique se a ANTHROPIC_API_KEY esta configurada.");
+      return;
+    }
+    await ctx.reply(suggestion);
+  } catch (err) {
+    console.error("Budget plan error:", err);
+    await ctx.reply("Erro ao gerar plano de orcamento.");
+  }
 }
 
 function progressBar(pct: number): string {

@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
+import Markdown from "react-markdown";
 import { api, type Goal, type BudgetProgress } from "../api/client";
 import { formatCurrency, formatDate } from "../utils";
+
+function Md({ children }: { children: string }) {
+  return (
+    <div className="prose prose-sm prose-gray max-w-none text-gray-700 leading-relaxed [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_h3]:font-semibold [&_p]:my-1 [&_strong]:text-gray-900">
+      <Markdown>{children}</Markdown>
+    </div>
+  );
+}
 
 export default function Goals() {
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -9,6 +18,17 @@ export default function Goals() {
   const [newName, setNewName] = useState("");
   const [newTarget, setNewTarget] = useState("");
   const [newDeadline, setNewDeadline] = useState("");
+
+  // AI goal creation
+  const [showAiGoal, setShowAiGoal] = useState(false);
+  const [aiDescription, setAiDescription] = useState("");
+  const [aiDeadline, setAiDeadline] = useState("");
+  const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  // AI budget planning
+  const [budgetSuggestion, setBudgetSuggestion] = useState<string | null>(null);
+  const [budgetLoading, setBudgetLoading] = useState(false);
 
   const now = new Date();
   const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -31,6 +51,32 @@ export default function Goals() {
     setShowNewGoal(false);
   }
 
+  async function handleAiPlan(e: React.FormEvent) {
+    e.preventDefault();
+    if (!aiDescription) return;
+    setAiLoading(true);
+    setAiSuggestion(null);
+    try {
+      const data = await api.planGoal(aiDescription, aiDeadline || undefined);
+      setAiSuggestion(data.suggestion);
+    } catch {
+      setAiSuggestion("Erro ao gerar sugestao.");
+    }
+    setAiLoading(false);
+  }
+
+  async function handleBudgetPlan() {
+    setBudgetLoading(true);
+    setBudgetSuggestion(null);
+    try {
+      const data = await api.planBudget();
+      setBudgetSuggestion(data.suggestion);
+    } catch {
+      setBudgetSuggestion("Erro ao gerar plano de orcamento.");
+    }
+    setBudgetLoading(false);
+  }
+
   async function handleDeposit(goalId: number) {
     const input = prompt("Quanto depositar?");
     if (!input) return;
@@ -51,14 +97,23 @@ export default function Goals() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Metas & Orcamento</h1>
-        <button
-          onClick={() => setShowNewGoal(!showNewGoal)}
-          className="bg-emerald-600 text-white px-3 py-1.5 rounded text-sm hover:bg-emerald-700"
-        >
-          + Nova meta
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => { setShowAiGoal(!showAiGoal); setShowNewGoal(false); }}
+            className="border border-emerald-600 text-emerald-600 px-3 py-1.5 rounded text-sm hover:bg-emerald-50"
+          >
+            + Meta com IA
+          </button>
+          <button
+            onClick={() => { setShowNewGoal(!showNewGoal); setShowAiGoal(false); }}
+            className="bg-emerald-600 text-white px-3 py-1.5 rounded text-sm hover:bg-emerald-700"
+          >
+            + Nova meta
+          </button>
+        </div>
       </div>
 
+      {/* Manual goal creation */}
       {showNewGoal && (
         <form onSubmit={handleCreateGoal} className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
           <div className="grid grid-cols-3 gap-3">
@@ -91,6 +146,42 @@ export default function Goals() {
             Criar
           </button>
         </form>
+      )}
+
+      {/* AI-assisted goal creation */}
+      {showAiGoal && (
+        <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-gray-500">Criar meta com ajuda da IA</h3>
+          <form onSubmit={handleAiPlan} className="space-y-3">
+            <input
+              type="text"
+              placeholder="O que voce quer conquistar? (ex: viagem, carro, reserva)"
+              value={aiDescription}
+              onChange={(e) => setAiDescription(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Expectativa de prazo (ex: 6 meses, fim do ano, ou deixe vazio)"
+              value={aiDeadline}
+              onChange={(e) => setAiDeadline(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm"
+            />
+            <button
+              type="submit"
+              disabled={aiLoading}
+              className="bg-emerald-600 text-white px-4 py-1.5 rounded text-sm hover:bg-emerald-700 disabled:opacity-50"
+            >
+              {aiLoading ? "Analisando..." : "Analisar com IA"}
+            </button>
+          </form>
+          {aiSuggestion && (
+            <div className="mt-3 border-t border-gray-100 pt-3">
+              <Md>{aiSuggestion}</Md>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Goals */}
@@ -143,8 +234,24 @@ export default function Goals() {
 
       {/* Budget progress */}
       <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-gray-500">Orcamento de {month}</h2>
-        {budgets.length === 0 ? (
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-gray-500">Orcamento de {month}</h2>
+          <button
+            onClick={handleBudgetPlan}
+            disabled={budgetLoading}
+            className="text-sm text-emerald-600 hover:text-emerald-700 font-medium disabled:opacity-50"
+          >
+            {budgetLoading ? "Planejando..." : budgetSuggestion ? "Replanejar com IA" : "Planejar com IA"}
+          </button>
+        </div>
+
+        {budgetSuggestion && (
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <Md>{budgetSuggestion}</Md>
+          </div>
+        )}
+
+        {budgets.length === 0 && !budgetSuggestion ? (
           <p className="text-gray-400 text-sm">Nenhum orcamento definido (use /budgetset no bot)</p>
         ) : (
           budgets.map((b) => (

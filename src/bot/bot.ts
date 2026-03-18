@@ -10,7 +10,7 @@ import { todayCommand, weekCommand, monthCommand, balanceCommand } from "./comma
 import { categoriesCommand } from "./commands/categories.js";
 import { undoCommand } from "./commands/undo.js";
 import { goalCommand, handleGoalAmount, handleGoalCallback } from "./commands/goals.js";
-import { budgetCommand, budgetSetCommand, handleBudgetCallback, handleBudgetAmount } from "./commands/budget.js";
+import { budgetCommand, budgetSetCommand, budgetPlanCommand, handleBudgetCallback, handleBudgetAmount } from "./commands/budget.js";
 import { adviceCommand } from "./commands/advice.js";
 import { insightsCommand, anomalyCommand } from "./commands/insights.js";
 import { exportCommand } from "./commands/export.js";
@@ -39,6 +39,7 @@ export function createBot(token: string): Bot {
   bot.command("goal", goalCommand);
   bot.command("budget", budgetCommand);
   bot.command("budgetset", budgetSetCommand);
+  bot.command("budgetplan", budgetPlanCommand);
   bot.command("advice", adviceCommand);
   bot.command("insights", insightsCommand);
   bot.command("anomalies", anomalyCommand);

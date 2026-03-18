@@ -18,6 +18,7 @@ Comandos disponiveis:
 /goal - Ver/criar metas de economia
 /budget - Ver orcamento mensal
 /budgetset - Definir orcamento por categoria
+/budgetplan - Planejar orcamento com IA
 /advice - Conselho financeiro com IA
 /insights - Relatorio mensal com IA
 /anomalies - Detectar gastos incomuns

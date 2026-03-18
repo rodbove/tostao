@@ -179,6 +179,19 @@ export const api = {
     return request<{ anomalies: string | null }>("/api/insights/anomalies");
   },
 
+  planGoal(description: string, deadline?: string) {
+    return request<{ suggestion: string }>("/api/insights/plan-goal", {
+      method: "POST",
+      body: JSON.stringify({ description, deadline }),
+    });
+  },
+
+  planBudget() {
+    return request<{ suggestion: string }>("/api/insights/plan-budget", {
+      method: "POST",
+    });
+  },
+
   // Accounts
   getAccounts() {
     return request<Account[]>("/api/accounts");
