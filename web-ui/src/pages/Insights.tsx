@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
+import Markdown from "react-markdown";
 import { api } from "../api/client";
+
+function Md({ children }: { children: string }) {
+  return (
+    <div className="prose prose-sm prose-gray max-w-none text-gray-700 leading-relaxed [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4 [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-sm [&_h3]:font-semibold [&_p]:my-1 [&_strong]:text-gray-900">
+      <Markdown>{children}</Markdown>
+    </div>
+  );
+}
 
 export default function Insights() {
   const [aiAvailable, setAiAvailable] = useState<boolean | null>(null);
@@ -89,9 +98,9 @@ export default function Insights() {
           </button>
         </form>
         {advice && (
-          <pre className="mt-3 text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
-            {advice}
-          </pre>
+          <div className="mt-3">
+            <Md>{advice}</Md>
+          </div>
         )}
       </div>
 
@@ -107,11 +116,7 @@ export default function Insights() {
             {loading.report ? "Gerando..." : report ? "Atualizar" : "Gerar relatorio"}
           </button>
         </div>
-        {report && (
-          <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
-            {report}
-          </pre>
-        )}
+        {report && <Md>{report}</Md>}
       </div>
 
       {/* Anomalies */}
@@ -126,11 +131,7 @@ export default function Insights() {
             {loading.anomalies ? "Verificando..." : anomalies ? "Verificar novamente" : "Verificar"}
           </button>
         </div>
-        {anomalies && (
-          <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
-            {anomalies}
-          </pre>
-        )}
+        {anomalies && <Md>{anomalies}</Md>}
       </div>
     </div>
   );
