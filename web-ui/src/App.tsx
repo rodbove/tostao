@@ -5,6 +5,7 @@ import Timeline from "./pages/Timeline";
 import Transactions from "./pages/Transactions";
 import Goals from "./pages/Goals";
 import Insights from "./pages/Insights";
+import Accounts from "./pages/Accounts";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/timeline" element={<Timeline />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/accounts" element={<Accounts />} />
           <Route path="/goals" element={<Goals />} />
           <Route path="/insights" element={<Insights />} />
         </Route>

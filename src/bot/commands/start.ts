@@ -25,6 +25,10 @@ Comandos disponiveis:
 /export - Exportar CSV do mes (/export all para tudo)
 /accounts - Ver saldo das contas
 /setbalance - Atualizar saldo de uma conta
+/newaccount - Criar nova conta
+/newcard - Criar novo cartao
+/deleteaccount - Excluir uma conta
+/deletecard - Excluir um cartao
 /categories - Ver categorias
 /undo - Desfazer ultimo registro
 /help - Ver esta mensagem`

@@ -14,7 +14,13 @@ import { budgetCommand, budgetSetCommand, budgetPlanCommand, handleBudgetCallbac
 import { adviceCommand } from "./commands/advice.js";
 import { insightsCommand, anomalyCommand } from "./commands/insights.js";
 import { exportCommand } from "./commands/export.js";
-import { accountsCommand, setBalanceCommand, handleSetBalanceCallback, handleSetBalanceAmount } from "./commands/accounts.js";
+import {
+  accountsCommand, setBalanceCommand, handleSetBalanceCallback, handleSetBalanceAmount,
+  newAccountCommand, handleNewAccountCallback,
+  newCardCommand, handleNewCardAccountCallback,
+  deleteAccountCommand, handleDeleteAccountCallback,
+  deleteCardCommand, handleDeleteCardCallback,
+} from "./commands/accounts.js";
 import { parseQuickInput } from "./quick-input.js";
 import { addTransaction } from "../db/transactions.js";
 import { findCategoryByName } from "../db/categories.js";
@@ -46,6 +52,10 @@ export function createBot(token: string): Bot {
   bot.command("export", exportCommand);
   bot.command("accounts", accountsCommand);
   bot.command("setbalance", setBalanceCommand);
+  bot.command("newaccount", newAccountCommand);
+  bot.command("newcard", newCardCommand);
+  bot.command("deleteaccount", deleteAccountCommand);
+  bot.command("deletecard", deleteCardCommand);
 
   // Callback queries (inline keyboard buttons)
   bot.callbackQuery(/^exp:/, handleExpenseCallback);
@@ -57,6 +67,10 @@ export function createBot(token: string): Bot {
   bot.callbackQuery(/^goal_/, handleGoalCallback);
   bot.callbackQuery(/^budget_cat:/, handleBudgetCallback);
   bot.callbackQuery(/^setbal:/, handleSetBalanceCallback);
+  bot.callbackQuery(/^newacc:/, handleNewAccountCallback);
+  bot.callbackQuery(/^newcard_acc:/, handleNewCardAccountCallback);
+  bot.callbackQuery(/^delacc:/, handleDeleteAccountCallback);
+  bot.callbackQuery(/^delcard:/, handleDeleteCardCallback);
 
   // Free text: try pending flows first, then quick input
   bot.on("message:text", async (ctx) => {
